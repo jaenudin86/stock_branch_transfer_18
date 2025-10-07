@@ -46,6 +46,7 @@
         </field>
     </record>
 
+
 <record id="action_stock_branch_transfer" model="ir.actions.act_window">
     <field name="name">Branch Transfers</field>
     <field name="res_model">stock.picking</field>
