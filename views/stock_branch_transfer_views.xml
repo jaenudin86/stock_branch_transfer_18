@@ -1,0 +1,68 @@
+<odoo>
+    <record id="view_stock_branch_transfer_form" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Tambahkan field Branch Transfer sebelum form utama -->
+            <xpath expr="//sheet/group" position="before">
+                <group string="Branch Transfer">
+                    <field name="transfer_type"/>
+                    <field name="source_warehouse_id"/>
+                    <field name="destination_warehouse_id"/>
+                    <field name="request_state" readonly="1"/>
+                    <field name="auto_create_pickings"/>
+                </group>
+            </xpath>
+
+            <!-- Header button section -->
+            <xpath expr="//form/header" position="inside">
+                <button name="action_request"
+                        string="Request"
+                        type="object"
+                        class="btn btn-primary"
+                        modifiers='{"readonly": [["request_state", "!=", "draft"]]}'/>
+
+                <button name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn btn-success"
+                        modifiers='{"readonly": [["request_state", "not in", ["requested", "draft"]]]}'/>
+
+                <button name="action_done_request"
+                        string="Mark Done"
+                        type="object"
+                        class="btn btn-secondary"
+                        modifiers='{"readonly": [["request_state", "!=", "approved"]]}'/>
+
+                <button name="action_cancel_request"
+                        string="Cancel"
+                        type="object"
+                        class="btn btn-danger"
+                        modifiers='{"readonly": [["request_state", "in", ["done", "cancelled"]]]}'/>
+            </xpath>
+
+        </field>
+    </record>
+
+<record id="action_stock_branch_transfer" model="ir.actions.act_window">
+    <field name="name">Branch Transfers</field>
+    <field name="res_model">stock.picking</field>
+    <field name="domain">[('transfer_type','=','branch')]</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="stock.vpicktree"/>   <!-- referensi view tree -->
+</record>
+
+
+<menuitem id="menu_branch_request_root"
+          name="Branch Request"
+          parent="stock.menu_stock_root"
+          sequence="50"/>
+
+<menuitem id="menu_branch_transfer"
+          name="Branch Transfers"
+          parent="menu_branch_request_root"
+          action="action_stock_branch_transfer"/>
+
+</odoo>
