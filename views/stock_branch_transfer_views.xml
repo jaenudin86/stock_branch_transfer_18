@@ -1,69 +1,164 @@
 <odoo>
-    <record id="view_stock_branch_transfer_form" model="ir.ui.view">
-        <field name="name">stock.branch.transfer.form</field>
+    <!-- ===================== -->
+    <!-- Lokasi Transit (opsional) -->
+    <!-- ===================== -->
+    <record id="stock_location_branch_transfer_transit" model="stock.location">
+        <field name="name">Branch Transfer Transit</field>
+        <field name="usage">internal</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- ===================== -->
+    <!-- Branch Transfer Request List -->
+    <!-- ===================== -->
+    <record id="stock_branch_transfer_request_list" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.request.list</field>
         <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-
-            <!-- Tambahkan field Branch Transfer sebelum form utama -->
-            <xpath expr="//sheet/group" position="before">
-                <group string="Branch Transfer">
-                    <field name="transfer_type"/>
-                    <field name="source_warehouse_id"/>
-                    <field name="destination_warehouse_id"/>
-                    <field name="request_state" readonly="1"/>
-                    <field name="auto_create_pickings"/>
-                </group>
-            </xpath>
-
-            <!-- Header button section -->
-            <xpath expr="//form/header" position="inside">
-                <button name="action_request"
-                        string="Request"
-                        type="object"
-                        class="btn btn-primary"
-                        modifiers='{"readonly": [["request_state", "!=", "draft"]]}'/>
-
-                <button name="action_approve"
-                        string="Approve"
-                        type="object"
-                        class="btn btn-success"
-                        modifiers='{"readonly": [["request_state", "not in", ["requested", "draft"]]]}'/>
-
-                <button name="action_done_request"
-                        string="Mark Done"
-                        type="object"
-                        class="btn btn-secondary"
-                        modifiers='{"readonly": [["request_state", "!=", "approved"]]}'/>
-
-                <button name="action_cancel_request"
-                        string="Cancel"
-                        type="object"
-                        class="btn btn-danger"
-                        modifiers='{"readonly": [["request_state", "in", ["done", "cancelled"]]]}'/>
-            </xpath>
-
+            <list string="Branch Transfer Requests">
+                <field name="name"/>
+                <field name="picking_type_id" string="Gudang Asal"/>
+                <field name="location_id" string="Lokasi Asal"/>
+                <field name="location_dest_id" string="Lokasi Tujuan"/>
+                <field name="dest_picking_type_id" string="Gudang Tujuan"/>
+                <field name="transfer_state"/>
+                <field name="scheduled_date"/>
+                <field name="create_uid"/>
+            </list>
         </field>
     </record>
 
+    <record id="stock_branch_transfer_request_form" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.request.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//sheet" position="inside">
+                <group string="Branch Transfer Request">
+                    <field name="picking_type_id" string="Gudang Asal"/>
+                    <field name="dest_picking_type_id" string="Gudang Tujuan"/>
+                    <field name="location_id" string="Lokasi Asal"/>
+                    <field name="location_dest_id" string="Lokasi Tujuan"/>
+                    <field name="transfer_state" readonly="1"/>
+                </group>
+            </xpath> -->
+                  <xpath expr="//field[@name='picking_type_id']" position="after">
 
-<record id="action_stock_branch_transfer" model="ir.actions.act_window">
-    <field name="name">Branch Transfers</field>
-    <field name="res_model">stock.picking</field>
-    <field name="domain">[('transfer_type','=','branch')]</field>
-    <field name="view_mode">form</field>
-    <field name="view_id" ref="stock.vpicktree"/>   <!-- referensi view tree -->
-</record>
+        <field name="dest_picking_type_id" string="Gudang Tujuan"/>
+        <field name="location_id" string="Lokasi Asal"/>
+        <field name="location_dest_id" string="Lokasi Tujuan"/>
+        <field name="transfer_state" readonly="1"/>
 
+      </xpath>
+            <xpath expr="//form/header/*" position="replace">
+                <button name="action_request" string="Request" type="object"
+                        class="btn btn-primary"
+                        modifiers='{"invisible":[["transfer_state","!=","draft"]]}'/>
+                <button name="action_approve" string="Approve" type="object"
+                        class="btn btn-success"
+                        modifiers='{"invisible":[["transfer_state","!=","requested"]]}'/>
+                <button name="action_done_request" string="Mark Done" type="object"
+                        class="btn btn-secondary"
+                        modifiers='{"invisible":[["transfer_state","!=","approved"]]}'/>
+                <button name="action_cancel_request" string="Cancel" type="object"
+                        class="btn btn-danger"
+                        modifiers='{"invisible":[["transfer_state","in",["done","received","cancelled"]]]}'/>
+            </xpath>
+        </field>
+    </record>
 
-<menuitem id="menu_branch_request_root"
-          name="Branch Request"
-          parent="stock.menu_stock_root"
-          sequence="50"/>
+    <record id="action_stock_branch_request" model="ir.actions.act_window">
+        <field name="name">Branch Requests</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="stock_branch_transfer_request_list"/>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','in',['draft','requested','approved'])]</field>
+    </record>
 
-<menuitem id="menu_branch_transfer"
-          name="Branch Transfers"
-          parent="menu_branch_request_root"
-          action="action_stock_branch_transfer"/>
+    <menuitem id="menu_branch_request" name="Branch Requests"
+              parent="stock.menu_stock_root" action="action_stock_branch_request"/>
 
+    <!-- ===================== -->
+    <!-- Branch Transfers Transit List -->
+    <!-- ===================== -->
+    <record id="stock_branch_transfer_transit_list" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.transit.list</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <list string="Branch Transfers In Transit">
+                <field name="name"/>
+                <field name="picking_type_id" string="Gudang Asal"/>
+                <field name="location_id" string="Lokasi Asal"/>
+                <field name="dest_picking_type_id" string="Gudang Tujuan"/>
+                <field name="location_dest_id" string="Lokasi Tujuan"/>
+                <field name="transfer_state"/>
+                <field name="scheduled_date"/>
+                <field name="write_uid"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_stock_branch_transit" model="ir.actions.act_window">
+        <field name="name">Branch Transfers Transit</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="stock_branch_transfer_transit_list"/>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','=','done')]</field>
+    </record>
+
+    <menuitem id="menu_branch_transit" name="Branch Transfers Transit"
+              parent="stock.menu_stock_root" action="action_stock_branch_transit"/>
+
+    <!-- ===================== -->
+    <!-- Branch Transfers Receive List -->
+    <!-- ===================== -->
+    <record id="stock_branch_transfer_receive_list" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.receive.list</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <list string="Branch Transfers Receive">
+                <field name="name"/>
+                <field name="picking_type_id" string="Gudang Asal"/>
+                <field name="location_id" string="Lokasi Asal"/>
+                <field name="dest_picking_type_id" string="Gudang Tujuan"/>
+                <field name="location_dest_id" string="Lokasi Tujuan"/>
+                <field name="transfer_state"/>
+                <field name="scheduled_date"/>
+                <field name="write_uid"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="stock_branch_transfer_receive_form" model="ir.ui.view">
+        <field name="name">stock.branch.transfer.receive.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Branch Transfer Receive">
+                    <field name="picking_type_id" string="Gudang Asal" readonly="1"/>
+                    <field name="dest_picking_type_id" string="Gudang Tujuan" readonly="1"/>
+                    <field name="location_id" string="Lokasi Asal" readonly="1"/>
+                    <field name="location_dest_id" string="Lokasi Tujuan" readonly="1"/>
+                    <field name="transfer_state" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//form/header/*" position="replace">
+                <button name="action_receive" string="Validate" type="object"
+                        class="btn btn-success"
+                        modifiers='{"invisible":[["transfer_state","!=","done"]]}'/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_stock_branch_receive" model="ir.actions.act_window">
+        <field name="name">Branch Receives</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="stock_branch_transfer_receive_list"/>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','=','done')]</field>
+    </record>
+
+    <menuitem id="menu_branch_receive" name="Branch Receives"
+              parent="stock.menu_stock_root" action="action_stock_branch_receive"/>
 </odoo>

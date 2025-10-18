@@ -1,0 +1,27 @@
+<odoo>
+    <record id="action_branch_requests" model="ir.actions.act_window">
+        <field name="name">Branch Transfer Requests</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','=','draft')]</field>
+    </record>
+
+    <record id="action_branch_send" model="ir.actions.act_window">
+        <field name="name">Branch Transfer Delivery</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','=','requested')]</field>
+    </record>
+
+    <record id="action_branch_receive" model="ir.actions.act_window">
+        <field name="name">Branch Transfer Receive</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('transfer_type','=','branch'),('transfer_state','=','in_transit')]</field>
+    </record>
+
+    <menuitem id="menu_stock_branch_transfer_root" name="Branch Transfer" parent="stock.menu_stock_root"/>
+    <menuitem id="menu_stock_branch_requests" name="Request Barang" parent="menu_stock_branch_transfer_root" action="action_branch_requests"/>
+    <menuitem id="menu_stock_branch_send" name="Kirim Request Cabang" parent="menu_stock_branch_transfer_root" action="action_branch_send"/>
+    <menuitem id="menu_stock_branch_receive" name="Penerimaan Barang" parent="menu_stock_branch_transfer_root" action="action_branch_receive"/>
+</odoo>

@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_stock_branch_transfer_user,stock.branch.transfer.user,model_stock_picking,,1,1,1,1
+access_stock_picking_branch,access_stock_picking_branch,model_stock_picking,,1,1,1,1

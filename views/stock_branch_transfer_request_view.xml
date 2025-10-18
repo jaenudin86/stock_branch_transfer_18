@@ -1,0 +1,23 @@
+<odoo>
+  <record id="view_stock_picking_branch_request_form" model="ir.ui.view">
+    <field name="name">stock.picking.branch.request.form</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='picking_type_id']" position="after">
+        <field name="warehouse_to_id" string="Gudang Tujuan" />
+        <field name="request_note" string="Alasan / Catatan" />
+        <field name="transfer_state" string="Status Transfer" readonly="1"/>
+      </xpath>
+      <xpath expr="//sheet" position="inside">
+        <div>
+          <label string="Request Lines (gunakan move lines di picking)"/>
+        </div>
+      </xpath>
+      <xpath expr="//form/header" position="inside">
+        <button name="action_submit_request" string="Submit Request" type="object"
+                class="btn btn-primary" attrs="{'invisible':[('transfer_state','!=','draft')]}" />
+      </xpath>
+    </field>
+  </record>
+</odoo>
